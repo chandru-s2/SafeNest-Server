@@ -1,0 +1,122 @@
+﻿Dashboard Data:
+{
+  "balance": {
+    "savings": 125000.5,
+    "current": 45000
+  },
+  "transactions": [
+    {
+      "id": "1e86be32-a3d7-4a21-89e9-f56ec18e3f31",
+      "type": "debit",
+      "amount": 1200,
+      "merchant": "Swiggy",
+      "ts": "2026-03-29T04:05:24.150Z",
+      "category": "Food",
+      "referenceId": "TXN002",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "218f0d4f-6c18-40c5-9760-3577b9c62672",
+      "type": "debit",
+      "amount": 3499,
+      "merchant": "Amazon",
+      "ts": "2026-03-29T04:05:24.150Z",
+      "category": "Shopping",
+      "referenceId": "TXN003",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "f50eb88f-14c0-40bb-8a0e-a0359bc2125c",
+      "type": "credit",
+      "amount": 50000,
+      "merchant": "Virtusa Payroll",
+      "ts": "2026-03-28T04:05:24.150Z",
+      "category": "Transfer",
+      "referenceId": "TXN001",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "9799a744-35cf-4426-96d7-77717893af2a",
+      "type": "debit",
+      "amount": 850,
+      "merchant": "Jio",
+      "ts": "2026-03-27T04:05:24.150Z",
+      "category": "Bills",
+      "referenceId": "TXN004",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "4df4a121-5879-4d91-ac23-3acb5529cff7",
+      "type": "credit",
+      "amount": 5000,
+      "merchant": "Priya Mehta",
+      "ts": "2026-03-26T04:05:24.150Z",
+      "category": "Transfer",
+      "referenceId": "TXN005",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "d95dd3b4-2037-47be-b014-1ae5ec125795",
+      "type": "debit",
+      "amount": 12000,
+      "merchant": "HDFC Bank",
+      "ts": "2026-03-25T04:05:24.150Z",
+      "category": "Bills",
+      "referenceId": "TXN006",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "0020c08b-f1bc-4397-b78e-ef059fcfc193",
+      "type": "debit",
+      "amount": 500,
+      "merchant": "SBI ATM",
+      "ts": "2026-03-24T04:05:24.150Z",
+      "category": "ATM",
+      "referenceId": "TXN007",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "36337ba0-eafc-416a-bc63-0ac59f823b8d",
+      "type": "debit",
+      "amount": 2300,
+      "merchant": "Apollo Pharmacy",
+      "ts": "2026-03-23T04:05:24.150Z",
+      "category": "Medical",
+      "referenceId": "TXN008",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "dec3d6b0-e215-47c5-87e8-01f56a335719",
+      "type": "credit",
+      "amount": 2000,
+      "merchant": "Amit Kumar",
+      "ts": "2026-03-22T04:05:24.150Z",
+      "category": "Transfer",
+      "referenceId": "TXN009",
+      "status": "completed",
+      "accountType": "savings"
+    },
+    {
+      "id": "bcb68018-9ca8-4d0a-bc85-67641e96fac8",
+      "type": "debit",
+      "amount": 8500,
+      "merchant": "BookMyShow",
+      "ts": "2026-03-21T04:05:24.150Z",
+      "category": "Entertainment",
+      "referenceId": "TXN010",
+      "status": "completed",
+      "accountType": "savings"
+    }
+  ],
+  "isOffline": false
+}
+
+Γ£à  Verification Success: "merchant" and "ts" fields are present.
