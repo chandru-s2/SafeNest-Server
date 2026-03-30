@@ -9,7 +9,11 @@ router.get('/', auth, transactionsController.listTransactions);
 // GET /v1/transactions/:id
 router.get('/:id', auth, transactionsController.getTransaction);
 
+// GET /v1/transactions/recent
+router.get('/recent', auth, transactionsController.getRecentTransactions);
+
 // POST /v1/transactions/send
 router.post('/send', auth, transactionsController.sendMoney);
+
 
 module.exports = router;

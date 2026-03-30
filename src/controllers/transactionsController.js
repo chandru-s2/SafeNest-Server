@@ -107,3 +107,33 @@ exports.sendMoney = async (req, res, next) => {
     next(err);
   }
 };
+
+// GET /v1/transactions/recent
+exports.getRecentTransactions = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+
+    const transactions = await Transaction.findAll({
+      where: { userId: req.user.userId },
+      order: [['createdAt', 'DESC']],
+      limit: limit,
+    });
+
+    res.json({
+      success: true,
+      transactions: transactions.map(t => ({
+        id: t.id,
+        type: t.type,
+        amount: t.amount,
+        merchant: t.counterparty || t.description,
+        ts: t.createdAt,
+        category: t.category,
+        referenceId: t.referenceId,
+        status: t.status,
+        accountType: t.accountType,
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+};
