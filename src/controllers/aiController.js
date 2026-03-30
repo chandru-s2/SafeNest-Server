@@ -10,21 +10,15 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 // Helper: Tool handlers
 const toolHandlers = {
   get_account_summary: async (userId) => {
-    const account = await Account.findOne({ where: { userId } });
-    return account ? {
-      savingsBalance: account.savingsBalance,
-      currentBalance: account.currentBalance,
-      currency: 'INR'
-    } : { error: 'Account not found' };
+    const account = await Account.findOne({ userId });
+    return account
+      ? { savingsBalance: account.savingsBalance, currentBalance: account.currentBalance, currency: 'INR' }
+      : { error: 'Account not found' };
   },
-  
+
   get_recent_transactions: async (userId, args) => {
     const limit = args.limit || 5;
-    const txns = await Transaction.findAll({
-      where: { userId },
-      order: [['createdAt', 'DESC']],
-      limit
-    });
+    const txns = await Transaction.find({ userId }).sort({ createdAt: -1 }).limit(limit);
     return txns;
   },
 
@@ -32,20 +26,18 @@ const toolHandlers = {
     const year = new Date().getFullYear();
     const num = Math.floor(100000 + Math.random() * 900000);
     const complaintId = `SNT-${year}-MUM-${num}`;
-    
     const complaint = await Complaint.create({
       userId,
       complaintId,
       category: args.category || 'Other',
       description: args.description || 'AI generated complaint',
-      status: 'Open'
+      status: 'Open',
     });
     return { success: true, complaintId: complaint.complaintId };
   },
 
   check_spending_summary: async (userId) => {
-    // Basic summary for current month
-    const txns = await Transaction.findAll({ where: { userId, type: 'debit' } });
+    const txns = await Transaction.find({ userId, type: 'debit' });
     const total = txns.reduce((sum, t) => sum + t.amount, 0);
     return { totalMonthlySpending: total, currency: 'INR' };
   },
@@ -57,10 +49,10 @@ const toolHandlers = {
       severity: 'high',
       message: `AI Flagged: ${args.reason || 'Suspicious patterns detected'}`,
       read: false,
-      ts: 'Just now'
+      ts: 'Just now',
     });
     return { success: true, message: 'Escalated to security team' };
-  }
+  },
 };
 
 exports.chat = async (req, res, next) => {
@@ -68,7 +60,7 @@ exports.chat = async (req, res, next) => {
     const { messages, currentScreen } = req.body;
     const userId = req.user.userId;
 
-    if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === 'YOUR_API_KEY') {
+    if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === 'YOUR_API_KEY_HERE') {
       return res.status(500).json({ error: 'AI Service not configured' });
     }
 
@@ -87,7 +79,7 @@ exports.chat = async (req, res, next) => {
         tools: [
           { name: 'get_account_summary', description: 'Get user account balance and summary' },
           { name: 'get_recent_transactions', description: 'Get last N transactions', input_schema: { type: 'object', properties: { limit: { type: 'integer' } } } },
-          { name: 'initiate_complaint', description: 'File a complaint', input_schema: { type: 'object', properties: { category: { type: 'string' }, description: { type: 'string' } } } },
+          { name: 'initiate_complaint',    description: 'File a complaint', input_schema: { type: 'object', properties: { category: { type: 'string' }, description: { type: 'string' } } } },
           { name: 'check_spending_summary', description: 'Get monthly spending breakdown' },
           { name: 'flag_suspicious_activity', description: 'Escalate fraud concern', input_schema: { type: 'object', properties: { reason: { type: 'string' } } } },
         ],
@@ -103,13 +95,12 @@ exports.chat = async (req, res, next) => {
 
     let finalResponse = anthropicResponse.data;
 
-    // Handle single tool call (simplified for this implementation)
+    // Handle single tool call
     if (finalResponse.stop_reason === 'tool_use') {
-      const toolUse = finalResponse.content.find(c => c.type === 'tool_use');
+      const toolUse = finalResponse.content.find((c) => c.type === 'tool_use');
       if (toolUse) {
         const result = await toolHandlers[toolUse.name](userId, toolUse.input);
-        
-        // Call Claude again with tool result
+
         const followUp = await axios.post(
           'https://api.anthropic.com/v1/messages',
           {
@@ -119,7 +110,7 @@ exports.chat = async (req, res, next) => {
             messages: [
               ...messages,
               { role: 'assistant', content: finalResponse.content },
-              { role: 'user', content: [{ type: 'tool_result', tool_use_id: toolUse.id, content: JSON.stringify(result) }] }
+              { role: 'user', content: [{ type: 'tool_result', tool_use_id: toolUse.id, content: JSON.stringify(result) }] },
             ],
           },
           {

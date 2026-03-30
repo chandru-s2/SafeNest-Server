@@ -1,11 +1,12 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const mongoose = require('mongoose');
 
-const Account = sequelize.define('Account', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  userId: { type: DataTypes.UUID, allowNull: false },
-  savingsBalance: { type: DataTypes.FLOAT, defaultValue: 0.0 },
-  currentBalance: { type: DataTypes.FLOAT, defaultValue: 0.0 },
-}, { tableName: 'accounts', timestamps: true });
+const AccountSchema = new mongoose.Schema(
+  {
+    userId:         { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    savingsBalance: { type: Number, default: 0.0 },
+    currentBalance: { type: Number, default: 0.0 },
+  },
+  { timestamps: true }
+);
 
-module.exports = Account;
+module.exports = mongoose.model('Account', AccountSchema);

@@ -10,14 +10,11 @@ const generateComplaintId = () => {
 // GET /v1/complaints
 exports.listComplaints = async (req, res, next) => {
   try {
-    const complaints = await Complaint.findAll({
-      where: { userId: req.user.userId },
-      order: [['createdAt', 'DESC']],
-    });
+    const complaints = await Complaint.find({ userId: req.user.userId }).sort({ createdAt: -1 });
 
     res.json({
-      complaints: complaints.map(c => ({
-        id: c.id,
+      complaints: complaints.map((c) => ({
+        id: c._id,
         complaintId: c.complaintId,
         category: c.category,
         description: c.description,
@@ -35,20 +32,19 @@ exports.listComplaints = async (req, res, next) => {
 // GET /v1/complaints/:id
 exports.trackComplaint = async (req, res, next) => {
   try {
-    // Support both UUID id and complaint string id (e.g. SNT-2025-MUM-123456)
     const { id } = req.params;
-    const where = { userId: req.user.userId };
+    const filter = { userId: req.user.userId };
     if (id.startsWith('SNT-')) {
-      where.complaintId = id;
+      filter.complaintId = id;
     } else {
-      where.id = id;
+      filter._id = id;
     }
 
-    const complaint = await Complaint.findOne({ where });
+    const complaint = await Complaint.findOne(filter);
     if (!complaint) return res.status(404).json({ error: 'Complaint not found' });
 
     res.json({
-      id: complaint.id,
+      id: complaint._id,
       complaintId: complaint.complaintId,
       category: complaint.category,
       description: complaint.description,
@@ -80,14 +76,14 @@ exports.createComplaint = async (req, res, next) => {
       complaintId: generateComplaintId(),
       category: category || 'Other',
       description,
-      referenceId,
+      referenceId: referenceId || null,
       status: 'Open',
     });
 
     res.status(201).json({
       success: true,
       complaint: {
-        id: complaint.id,
+        id: complaint._id,
         complaintId: complaint.complaintId,
         category: complaint.category,
         description: complaint.description,
@@ -103,11 +99,15 @@ exports.createComplaint = async (req, res, next) => {
 // PUT /v1/complaints/:id/status (internal/admin use)
 exports.updateStatus = async (req, res, next) => {
   try {
-    const complaint = await Complaint.findOne({ where: { id: req.params.id } });
+    const complaint = await Complaint.findById(req.params.id);
     if (!complaint) return res.status(404).json({ error: 'Complaint not found' });
 
     const { status, resolution, escalationTier } = req.body;
-    await complaint.update({ status, resolution, escalationTier });
+    if (status) complaint.status = status;
+    if (resolution) complaint.resolution = resolution;
+    if (escalationTier !== undefined) complaint.escalationTier = escalationTier;
+    await complaint.save();
+
     res.json({ success: true, complaint });
   } catch (err) {
     next(err);

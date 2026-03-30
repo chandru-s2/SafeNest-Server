@@ -1,20 +1,17 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const mongoose = require('mongoose');
 
-const Alert = sequelize.define('Alert', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  userId: { type: DataTypes.UUID, allowNull: false },
-  type: {
-    type: DataTypes.ENUM('Fraud', 'Spending', 'Tips', 'System'),
-    defaultValue: 'System',
+const AlertSchema = new mongoose.Schema(
+  {
+    userId:   { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    type:     { type: String, enum: ['Fraud', 'Spending', 'Tips', 'System'], default: 'System' },
+    message:  { type: String, required: true },
+    severity: { type: String, enum: ['low', 'medium', 'high'], default: 'low' },
+    read:     { type: Boolean, default: false },
+    ts:       { type: String, required: true },
   },
-  message: { type: DataTypes.TEXT, allowNull: false },
-  severity: {
-    type: DataTypes.ENUM('low', 'medium', 'high'),
-    defaultValue: 'low',
-  },
-  read: { type: DataTypes.BOOLEAN, defaultValue: false },
-  ts: { type: DataTypes.STRING, allowNull: false },
-}, { tableName: 'alerts', timestamps: true });
+  { timestamps: true }
+);
 
-module.exports = Alert;
+AlertSchema.index({ userId: 1, createdAt: -1 });
+
+module.exports = mongoose.model('Alert', AlertSchema);

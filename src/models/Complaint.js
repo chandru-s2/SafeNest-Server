@@ -1,23 +1,28 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const mongoose = require('mongoose');
 
-const Complaint = sequelize.define('Complaint', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  userId: { type: DataTypes.UUID, allowNull: false },
-  complaintId: { type: DataTypes.STRING, allowNull: false, unique: true },
-  category: {
-    type: DataTypes.ENUM('Transaction', 'Fraud', 'Service', 'Other'),
-    defaultValue: 'Other',
+const ComplaintSchema = new mongoose.Schema(
+  {
+    userId:        { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    complaintId:   { type: String, required: true, unique: true },
+    category:      {
+      type: String,
+      enum: ['Transaction', 'Fraud', 'Service', 'Other'],
+      default: 'Other',
+    },
+    description:   { type: String, required: true },
+    referenceId:   { type: String, default: null },
+    status:        {
+      type: String,
+      enum: ['Open', 'InProgress', 'Resolved', 'Closed'],
+      default: 'Open',
+    },
+    resolution:    { type: String, default: null },
+    escalationTier: { type: Number, default: 1 },
+    attachmentUrl: { type: String, default: null },
   },
-  description: { type: DataTypes.TEXT, allowNull: false },
-  referenceId: { type: DataTypes.STRING, allowNull: true },
-  status: {
-    type: DataTypes.ENUM('Open', 'InProgress', 'Resolved', 'Closed'),
-    defaultValue: 'Open',
-  },
-  resolution: { type: DataTypes.TEXT, allowNull: true },
-  escalationTier: { type: DataTypes.INTEGER, defaultValue: 1 },
-  attachmentUrl: { type: DataTypes.STRING, allowNull: true },
-}, { tableName: 'complaints', timestamps: true });
+  { timestamps: true }
+);
 
-module.exports = Complaint;
+ComplaintSchema.index({ userId: 1, createdAt: -1 });
+
+module.exports = mongoose.model('Complaint', ComplaintSchema);

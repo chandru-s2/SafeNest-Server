@@ -1,20 +1,25 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const mongoose = require('mongoose');
 
-const Transaction = sequelize.define('Transaction', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  userId: { type: DataTypes.UUID, allowNull: false },
-  type: { type: DataTypes.ENUM('credit', 'debit'), allowNull: false },
-  amount: { type: DataTypes.FLOAT, allowNull: false },
-  description: { type: DataTypes.STRING, allowNull: false },
-  category: {
-    type: DataTypes.ENUM('Food', 'Shopping', 'Transfer', 'Bills', 'ATM', 'Medical', 'Travel', 'Entertainment', 'Other'),
-    defaultValue: 'Other',
+const TransactionSchema = new mongoose.Schema(
+  {
+    userId:      { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    type:        { type: String, enum: ['credit', 'debit'], required: true },
+    amount:      { type: Number, required: true },
+    description: { type: String, required: true },
+    category:    {
+      type: String,
+      enum: ['Food', 'Shopping', 'Transfer', 'Bills', 'ATM', 'Medical', 'Travel', 'Entertainment', 'Other'],
+      default: 'Other',
+    },
+    counterparty: { type: String, default: null },
+    referenceId:  { type: String, default: null },
+    status:       { type: String, enum: ['completed', 'pending', 'failed'], default: 'completed' },
+    accountType:  { type: String, enum: ['savings', 'current'], default: 'savings' },
   },
-  counterparty: { type: DataTypes.STRING, allowNull: true },
-  referenceId: { type: DataTypes.STRING, allowNull: true },
-  status: { type: DataTypes.ENUM('completed', 'pending', 'failed'), defaultValue: 'completed' },
-  accountType: { type: DataTypes.ENUM('savings', 'current'), defaultValue: 'savings' },
-}, { tableName: 'transactions', timestamps: true });
+  { timestamps: true }
+);
 
-module.exports = Transaction;
+// Index for fast user-specific queries
+TransactionSchema.index({ userId: 1, createdAt: -1 });
+
+module.exports = mongoose.model('Transaction', TransactionSchema);

@@ -1,16 +1,17 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const mongoose = require('mongoose');
 
-const User = sequelize.define('User', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  phone: { type: DataTypes.STRING(15), allowNull: false, unique: true },
-  email: { type: DataTypes.STRING, allowNull: true },
-  name: { type: DataTypes.STRING, allowNull: false, defaultValue: 'SafeNest User' },
-  accountNumber: { type: DataTypes.STRING(20), allowNull: false },
-  pinHash: { type: DataTypes.STRING, allowNull: true },
-  otpCode: { type: DataTypes.STRING(6), allowNull: true },
-  otpExpiry: { type: DataTypes.DATE, allowNull: true },
-  isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { tableName: 'users', timestamps: true });
+const UserSchema = new mongoose.Schema(
+  {
+    phone:         { type: String, required: true, unique: true, maxlength: 15 },
+    email:         { type: String, default: null },
+    name:          { type: String, required: true, default: 'SafeNest User' },
+    accountNumber: { type: String, required: true, maxlength: 20 },
+    pinHash:       { type: String, default: null },
+    otpCode:       { type: String, default: null },
+    otpExpiry:     { type: Date,   default: null },
+    isActive:      { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
 
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);

@@ -3,20 +3,20 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const { sequelize } = require('./config/database');
+const { connectDB } = require('./config/database');
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const profileRoutes = require('./routes/profile');
-const dashboardRoutes = require('./routes/dashboard');
+const authRoutes         = require('./routes/auth');
+const profileRoutes      = require('./routes/profile');
+const dashboardRoutes    = require('./routes/dashboard');
 const transactionsRoutes = require('./routes/transactions');
-const complaintsRoutes = require('./routes/complaints');
-const alertsRoutes = require('./routes/alerts');
-const agentsRoutes = require('./routes/agents');
-const aiRoutes = require('./routes/ai');
-const errorHandler = require('./middleware/errorHandler');
+const complaintsRoutes   = require('./routes/complaints');
+const alertsRoutes       = require('./routes/alerts');
+const agentsRoutes       = require('./routes/agents');
+const aiRoutes           = require('./routes/ai');
+const errorHandler       = require('./middleware/errorHandler');
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
@@ -27,14 +27,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-app.use('/v1/auth', authRoutes);
-app.use('/v1/profile', profileRoutes);
-app.use('/v1/dashboard', dashboardRoutes);
+app.use('/v1/auth',         authRoutes);
+app.use('/v1/profile',      profileRoutes);
+app.use('/v1/dashboard',    dashboardRoutes);
 app.use('/v1/transactions', transactionsRoutes);
-app.use('/v1/complaints', complaintsRoutes);
-app.use('/v1/alerts', alertsRoutes);
-app.use('/v1/agents', agentsRoutes);
-app.use('/v1/ai', aiRoutes);
+app.use('/v1/complaints',   complaintsRoutes);
+app.use('/v1/alerts',       alertsRoutes);
+app.use('/v1/agents',       agentsRoutes);
+app.use('/v1/ai',           aiRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
@@ -52,10 +52,7 @@ app.use(errorHandler);
 // ─── Start ────────────────────────────────────────────────────────────────────
 async function start() {
   try {
-    await sequelize.authenticate();
-    console.log('✅  Database connected');
-    await sequelize.sync({ force: false });
-    console.log('✅  Models synced');
+    await connectDB();
 
     app.listen(PORT, () => {
       console.log(`\n🚀  SafeNest API running on http://localhost:${PORT}`);
