@@ -1,4 +1,5 @@
 const Alert = require('../models/Alert');
+const mongoose = require('mongoose');
 
 // GET /v1/alerts
 exports.listAlerts = async (req, res, next) => {
@@ -30,6 +31,9 @@ exports.listAlerts = async (req, res, next) => {
 // PUT /v1/alerts/:id/read
 exports.markRead = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid alert ID format' });
+    }
     const alert = await Alert.findOne({ _id: req.params.id, userId: req.user.userId });
     if (!alert) return res.status(404).json({ error: 'Alert not found' });
 

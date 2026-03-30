@@ -6,17 +6,17 @@ const morgan = require('morgan');
 const { connectDB } = require('./config/database');
 
 // Import routes
-const authRoutes         = require('./routes/auth');
-const profileRoutes      = require('./routes/profile');
-const dashboardRoutes    = require('./routes/dashboard');
+const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
+const dashboardRoutes = require('./routes/dashboard');
 const transactionsRoutes = require('./routes/transactions');
-const complaintsRoutes   = require('./routes/complaints');
-const alertsRoutes       = require('./routes/alerts');
-const agentsRoutes       = require('./routes/agents');
-const aiRoutes           = require('./routes/ai');
-const errorHandler       = require('./middleware/errorHandler');
+const complaintsRoutes = require('./routes/complaints');
+const alertsRoutes = require('./routes/alerts');
+const agentsRoutes = require('./routes/agents');
+const aiRoutes = require('./routes/ai');
+const errorHandler = require('./middleware/errorHandler');
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
@@ -27,17 +27,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-app.use('/v1/auth',         authRoutes);
-app.use('/v1/profile',      profileRoutes);
-app.use('/v1/dashboard',    dashboardRoutes);
+app.use('/v1/auth', authRoutes);
+app.use('/v1/profile', profileRoutes);
+app.use('/v1/dashboard', dashboardRoutes);
 app.use('/v1/transactions', transactionsRoutes);
-app.use('/v1/complaints',   complaintsRoutes);
-app.use('/v1/alerts',       alertsRoutes);
-app.use('/v1/agents',       agentsRoutes);
-app.use('/v1/ai',           aiRoutes);
+app.use('/v1/complaints', complaintsRoutes);
+app.use('/v1/alerts', alertsRoutes);
+app.use('/v1/agents', agentsRoutes);
+app.use('/v1/ai', aiRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
-app.get('/health', (req, res) => {
+app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'SafeNest API', version: '1.0.0', timestamp: new Date().toISOString() });
 });
 
@@ -54,10 +54,15 @@ async function start() {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
-      console.log(`\n🚀  SafeNest API running on http://localhost:${PORT}`);
-      console.log(`📱  Mobile (emulator) → http://10.0.2.2:${PORT}`);
-      console.log(`📋  Health check      → http://localhost:${PORT}/health\n`);
+    // Bind to 0.0.0.0 so the server is reachable from:
+    //  • Android emulator  via 10.0.2.2:<PORT>
+    //  • Physical device   via <your-LAN-IP>:<PORT>  (same Wi-Fi)
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`\n🚀  SafeNest API is running`);
+      console.log(`   Local:          http://localhost:${PORT}`);
+      console.log(`   Android Emulator→ http://10.0.2.2:${PORT}`);
+      console.log(`   Physical Device → http://10.94.67.105:${PORT}  (use your PC's LAN IP)`);
+      console.log(`   Health check    → http://localhost:${PORT}/health\n`);
     });
   } catch (err) {
     console.error('❌  Failed to start server:', err);

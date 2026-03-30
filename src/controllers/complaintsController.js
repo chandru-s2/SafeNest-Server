@@ -1,4 +1,5 @@
 const Complaint = require('../models/Complaint');
+const mongoose = require('mongoose');
 
 // Generate complaint ID in mobile app format: SNT-YYYY-MUM-NNNNNN
 const generateComplaintId = () => {
@@ -37,6 +38,9 @@ exports.trackComplaint = async (req, res, next) => {
     if (id.startsWith('SNT-')) {
       filter.complaintId = id;
     } else {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid complaint ID format' });
+      }
       filter._id = id;
     }
 
@@ -99,6 +103,9 @@ exports.createComplaint = async (req, res, next) => {
 // PUT /v1/complaints/:id/status (internal/admin use)
 exports.updateStatus = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid complaint ID format' });
+    }
     const complaint = await Complaint.findById(req.params.id);
     if (!complaint) return res.status(404).json({ error: 'Complaint not found' });
 

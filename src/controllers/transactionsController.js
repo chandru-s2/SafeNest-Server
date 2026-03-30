@@ -1,5 +1,6 @@
 const Transaction = require('../models/Transaction');
 const Account = require('../models/Account');
+const mongoose = require('mongoose');
 
 // GET /v1/transactions
 exports.listTransactions = async (req, res, next) => {
@@ -71,6 +72,9 @@ exports.getRecentTransactions = async (req, res, next) => {
 // GET /v1/transactions/:id
 exports.getTransaction = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid transaction ID format' });
+    }
     const transaction = await Transaction.findOne({ _id: req.params.id, userId: req.user.userId });
     if (!transaction) return res.status(404).json({ error: 'Transaction not found' });
     res.json(transaction);
